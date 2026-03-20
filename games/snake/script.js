@@ -20,6 +20,34 @@ let paused = false;
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+// Загрузка биндов из URL
+const urlParams = new URLSearchParams(window.location.search);
+let gameBinds = {};
+try {
+    const bindsParam = urlParams.get('binds');
+    if (bindsParam) {
+        gameBinds = JSON.parse(decodeURIComponent(bindsParam));
+    }
+} catch(e) {}
+
+const defaultBinds = {
+    'up': 'ArrowUp',
+    'down': 'ArrowDown',
+    'left': 'ArrowLeft',
+    'right': 'ArrowRight',
+    'pause': 'KeyP'
+};
+const binds = { ...defaultBinds, ...gameBinds };
+
+function getKeyCode(key) {
+    if (key === 'ArrowUp') return 'ArrowUp';
+    if (key === 'ArrowDown') return 'ArrowDown';
+    if (key === 'ArrowLeft') return 'ArrowLeft';
+    if (key === 'ArrowRight') return 'ArrowRight';
+    if (key === 'KeyP') return 'p';
+    return key;
+}
+
 function init() {
     snake = [{x: 10, y: 10}];
     direction = 'right';
@@ -241,32 +269,41 @@ function gameTick(timestamp) {
     gameLoop = requestAnimationFrame(gameTick);
 }
 
+// УПРАВЛЕНИЕ - РАБОТАЕТ
 document.addEventListener('keydown', (e) => {
+    // ESC закрывает игру
     if (e.key === 'Escape') {
         e.preventDefault();
         closeGame();
         return;
     }
+    
     if (!gameRunning) return;
     
-    if (e.key === 'ArrowUp' && direction !== 'down') {
+    const key = e.key;
+    
+    // Стрелки
+    if (key === 'ArrowUp' && direction !== 'down') {
         nextDirection = 'up';
         e.preventDefault();
-    } else if (e.key === 'ArrowDown' && direction !== 'up') {
+    } else if (key === 'ArrowDown' && direction !== 'up') {
         nextDirection = 'down';
         e.preventDefault();
-    } else if (e.key === 'ArrowLeft' && direction !== 'right') {
+    } else if (key === 'ArrowLeft' && direction !== 'right') {
         nextDirection = 'left';
         e.preventDefault();
-    } else if (e.key === 'ArrowRight' && direction !== 'left') {
+    } else if (key === 'ArrowRight' && direction !== 'left') {
         nextDirection = 'right';
         e.preventDefault();
-    } else if (e.key === 'p' || e.key === 'P' || e.key === 'р' || e.key === 'Р') {
+    }
+    // Пауза на P (латинская и русская)
+    else if (key === 'p' || key === 'P' || key === 'р' || key === 'Р') {
         paused = !paused;
         e.preventDefault();
     }
 });
 
+// Свайпы для телефона
 if (isMobile) {
     let touchStartX = 0, touchStartY = 0;
     canvas.addEventListener('touchstart', (e) => {
