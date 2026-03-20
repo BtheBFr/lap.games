@@ -11,9 +11,7 @@ const gridSize = 20;
 const cellSize = canvas.width / gridSize;
 
 // Переменные игры
-let snake = [
-    {x: 10, y: 10}
-];
+let snake = [{x: 10, y: 10}];
 let food = {};
 let direction = 'right';
 let nextDirection = 'right';
@@ -59,12 +57,13 @@ function update() {
         case 'down': head.y++; break;
     }
     
-    // Проверка на столкновение
+    // Проверка стен
     if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
         gameOver();
         return;
     }
     
+    // Проверка себя
     if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
         gameOver();
         return;
@@ -72,6 +71,7 @@ function update() {
     
     snake.unshift(head);
     
+    // Еда
     if (head.x === food.x && head.y === food.y) {
         score += 10;
         scoreElement.textContent = score;
@@ -149,7 +149,7 @@ function draw() {
     ctx.shadowBlur = 0;
 }
 
-// Вспомогательная функция для скругленных прямоугольников
+// Скругленные прямоугольники
 CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     if (w < 2 * r) r = w / 2;
     if (h < 2 * r) r = h / 2;
@@ -191,7 +191,7 @@ function closeGame() {
     window.parent.postMessage('closeGame', '*');
 }
 
-// Игровой тик
+// Игровой цикл
 let lastUpdate = 0;
 const UPDATE_INTERVAL = 150;
 
@@ -207,9 +207,9 @@ function gameTick(timestamp) {
     gameLoop = requestAnimationFrame(gameTick);
 }
 
-// УПРАВЛЕНИЕ - ИСПРАВЛЕНО!
+// УПРАВЛЕНИЕ
 document.addEventListener('keydown', (e) => {
-    // ESC всегда закрывает игру (НИКАКОЙ ПАУЗЫ!)
+    // ESC всегда закрывает игру
     if (e.key === 'Escape') {
         closeGame();
         return;
@@ -217,7 +217,7 @@ document.addEventListener('keydown', (e) => {
     
     if (!gameRunning) return;
     
-    // Проверяем бинды
+    // Проверяем бинды (функция isKeyPressed из bind.js)
     if (isKeyPressed(e, binds.up) && direction !== 'down') {
         nextDirection = 'up';
         e.preventDefault();
