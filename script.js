@@ -1,6 +1,5 @@
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-// Класс для управления биндами
 class SettingsManager {
     constructor() {
         this.binds = this.loadBinds();
@@ -9,15 +8,17 @@ class SettingsManager {
     loadBinds() {
         const saved = localStorage.getItem('gameBinds');
         if (saved) return JSON.parse(saved);
-        return {
-            snake: {
+        const binds = {};
+        gamesDatabase.forEach(game => {
+            binds[game.id] = {
                 'up': 'ArrowUp',
                 'down': 'ArrowDown',
                 'left': 'ArrowLeft',
                 'right': 'ArrowRight',
                 'pause': 'KeyP'
-            }
-        };
+            };
+        });
+        return binds;
     }
     
     saveBinds() {
@@ -46,13 +47,7 @@ class SettingsManager {
     }
     
     getReadableKey(key) {
-        const names = {
-            'ArrowUp': '↑',
-            'ArrowDown': '↓',
-            'ArrowLeft': '←',
-            'ArrowRight': '→',
-            'KeyP': 'P'
-        };
+        const names = { 'ArrowUp': '↑', 'ArrowDown': '↓', 'ArrowLeft': '←', 'ArrowRight': '→', 'KeyP': 'P' };
         return names[key] || key;
     }
 }
@@ -91,6 +86,9 @@ function closeGame() {
 
 function initGames() {
     const grid = document.getElementById('gamesGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
     gamesDatabase.forEach(game => {
         const card = document.createElement('div');
         card.className = 'game-card';
@@ -147,11 +145,9 @@ function startGame(game, mode) {
         controlsInfo.innerHTML = '<div class="control-badge">👆 Свайпы для управления</div>';
     } else {
         let html = '';
+        const names = { 'up': '↑', 'down': '↓', 'left': '←', 'right': '→', 'pause': 'Пауза' };
         for (let [action, key] of Object.entries(binds)) {
-            let name = {
-                'up': '↑', 'down': '↓', 'left': '←', 'right': '→', 'pause': 'Пауза'
-            }[action] || action;
-            html += `<div class="control-badge">${name}: <span>${settingsManager.getReadableKey(key)}</span></div>`;
+            html += `<div class="control-badge">${names[action] || action}: <span>${settingsManager.getReadableKey(key)}</span></div>`;
         }
         controlsInfo.innerHTML = html;
     }
@@ -164,12 +160,14 @@ function startGame(game, mode) {
 
 function initSearch() {
     const input = document.getElementById('searchInput');
+    if (!input) return;
+    
     input.addEventListener('input', (e) => {
         const q = e.target.value.toLowerCase();
         document.querySelectorAll('.game-card').forEach(card => {
             const game = gamesDatabase.find(g => g.id === card.dataset.gameId);
             const match = game.name.toLowerCase().includes(q) || (game.ru && game.ru.toLowerCase().includes(q));
-            card.style.display = match ? 'block' : 'none';
+            card.style.display = match ? 'flex' : 'none';
         });
     });
 }
@@ -181,14 +179,17 @@ function initSettings() {
     const search = document.getElementById('settingsSearch');
     const list = document.getElementById('gamesSettingsList');
     
+    if (!btn) return;
+    
     btn.onclick = () => {
         updateList('');
         modal.classList.add('active');
     };
-    close.onclick = () => modal.classList.remove('active');
-    search.oninput = (e) => updateList(e.target.value.toLowerCase());
+    if (close) close.onclick = () => modal.classList.remove('active');
+    if (search) search.oninput = (e) => updateList(e.target.value.toLowerCase());
     
     function updateList(query) {
+        if (!list) return;
         list.innerHTML = '';
         gamesDatabase.filter(g => g.name.toLowerCase().includes(query)).forEach(game => {
             const item = document.createElement('div');
@@ -214,10 +215,7 @@ function showBindModal(game) {
     list.innerHTML = '';
     
     const binds = settingsManager.getGameBinds(game.id);
-    
-    const names = {
-        'up': 'Вверх', 'down': 'Вниз', 'left': 'Влево', 'right': 'Вправо', 'pause': 'Пауза'
-    };
+    const names = { 'up': 'Вверх', 'down': 'Вниз', 'left': 'Влево', 'right': 'Вправо', 'pause': 'Пауза' };
     
     for (let [action, key] of Object.entries(binds)) {
         const item = document.createElement('div');
@@ -247,6 +245,7 @@ function showBindModal(game) {
         settingsManager.resetGameBinds(game.id);
         showBindModal(game);
     };
+    document.getElementById('closeBindModal').onclick = () => modal.classList.remove('active');
     
     modal.classList.add('active');
 }
@@ -277,5 +276,4 @@ function initModals() {
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
     });
     document.getElementById('closeModeModal').onclick = () => document.getElementById('modeModal').classList.remove('active');
-    document.getElementById('closeBindModal').onclick = () => document.getElementById('bindModal').classList.remove('active');
 }
