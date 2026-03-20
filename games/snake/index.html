@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Змейка - Lap.Games</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="game-ui">
+        <div class="score">Счет: <span id="score">0</span></div>
+        <div class="game-over" id="gameOver">
+            <h2>Игра окончена!</h2>
+            <p>Счет: <span id="finalScore">0</span></p>
+            <button class="btn-primary" onclick="restartGame()">Играть снова</button>
+            <button class="btn-secondary" onclick="closeGame()">Выход</button>
+        </div>
+    </div>
+    
+    <script src="bind.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
