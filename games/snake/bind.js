@@ -6,18 +6,19 @@ try {
     const bindsParam = urlParams.get('binds');
     if (bindsParam) {
         gameBinds = JSON.parse(decodeURIComponent(bindsParam));
+        console.log('Загруженные бинды:', gameBinds);
     }
 } catch (e) {
     console.error('Ошибка загрузки биндов:', e);
 }
 
-// Дефолтные бинды если ничего не пришло
+// Дефолтные бинды (пауза на P, ESC не трогаем!)
 const defaultBinds = {
     'up': 'ArrowUp',
     'down': 'ArrowDown',
     'left': 'ArrowLeft',
     'right': 'ArrowRight',
-    'pause': 'KeyP'
+    'pause': 'KeyP'  // Пауза на P
 };
 
 // Объединяем с дефолтными
@@ -25,7 +26,7 @@ const binds = { ...defaultBinds, ...gameBinds };
 
 // Функция проверки нажатия клавиши с учётом русской раскладки
 function isKeyPressed(event, targetKey) {
-    // Конвертация русских букв в английские для сравнения
+    // Конвертация русских букв в английские
     const ruToEn = {
         'й': 'q', 'ц': 'w', 'у': 'e', 'к': 'r', 'е': 't', 'н': 'y', 'г': 'u', 'ш': 'i', 'щ': 'o', 'з': 'p', 'х': '[', 'ъ': ']',
         'ф': 'a', 'ы': 's', 'в': 'd', 'а': 'f', 'п': 'g', 'р': 'h', 'о': 'j', 'л': 'k', 'д': 'l', 'ж': ';', 'э': "'",
@@ -39,10 +40,11 @@ function isKeyPressed(event, targetKey) {
     const normalizedPressed = ruToEn[pressedKey] || pressedKey;
     
     // Для специальных клавиш
-    if (targetKey.startsWith('Arrow') || targetKey === 'Space' || targetKey === 'Enter') {
-        return pressedKey === targetKey;
-    }
+    if (targetKey === 'Space') return pressedKey === ' ';
+    if (targetKey.startsWith('Arrow')) return pressedKey === targetKey;
+    if (targetKey === 'Enter') return pressedKey === 'Enter';
     
-    // Для буквенных клавиш
-    return normalizedPressed.toLowerCase() === targetKey.toLowerCase().replace('key', '');
+    // Для буквенных клавиш (убираем 'Key' из начала если есть)
+    const cleanTarget = targetKey.replace('Key', '');
+    return normalizedPressed.toLowerCase() === cleanTarget.toLowerCase();
 }
