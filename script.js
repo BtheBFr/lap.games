@@ -4,7 +4,28 @@ document.addEventListener('DOMContentLoaded', () => {
     initSearch();
     initSettings();
     initModals();
+    
+    // Закрытие игры по ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const gameContainer = document.getElementById('gameContainer');
+            if (gameContainer.classList.contains('active')) {
+                closeGame();
+            }
+        }
+    });
+    
+    // Кнопка закрытия игры
+    document.getElementById('closeGameBtn').addEventListener('click', closeGame);
 });
+
+// Закрытие игры
+function closeGame() {
+    const gameContainer = document.getElementById('gameContainer');
+    const gameFrame = document.getElementById('gameFrame');
+    gameContainer.classList.remove('active');
+    gameFrame.src = '';
+}
 
 // Инициализация игр
 function initGames() {
@@ -24,21 +45,19 @@ function createGameCard(game) {
     
     // Создаем теги режимов
     const modeTags = game.modes.map(mode => {
-        let className = 'mode-tag';
-        if (mode.includes('multi')) className += ' multi';
         let displayMode = mode;
         if (mode === '1P') displayMode = '1 игрок';
         else if (mode === 'bot') displayMode = '🤖 Бот';
         else if (mode.includes('multi')) displayMode = '👥 ' + mode;
-        return `<span class="${className}">${displayMode}</span>`;
+        return `<span class="mode-tag">${displayMode}</span>`;
     }).join('');
     
     card.innerHTML = `
         <div class="game-card-content">
-            <img src="${game.icon}" alt="${game.name.ru}" class="game-icon" 
-                 onerror="this.src='https://via.placeholder.com/64/1e2429/7b4ae2?text=${game.name.ru[0]}'">
+            <img src="${game.icon}" alt="${game.name}" class="game-icon" 
+                 onerror="this.src='https://via.placeholder.com/64/1e2429/7b4ae2?text=${game.name[0]}'">
             <div class="game-info">
-                <h3>${game.name.ru}</h3>
+                <h3>${game.name}</h3>
                 <div class="game-modes">
                     ${modeTags}
                 </div>
@@ -55,98 +74,67 @@ function createGameCard(game) {
 function showGameModes(game) {
     const modal = document.getElementById('modeModal');
     const title = document.getElementById('modalGameTitle');
-    const buttonsDiv = document.getElementById('modeButtons');
+    const modesGrid = document.getElementById('modesGrid');
     
-    title.textContent = `${game.name.ru} - выберите режим`;
-    buttonsDiv.innerHTML = '';
+    title.textContent = `${game.name} - выберите режим`;
+    modesGrid.innerHTML = '';
     
     game.modes.forEach(mode => {
         const button = document.createElement('button');
-        button.className = 'btn-primary';
+        button.className = 'mode-btn';
         
         let text = '';
         if (mode === '1P') text = '👤 Одиночная игра';
-        else if (mode === 'bot') text = '🤖 Игра с ботом';
+        else if (mode === 'bot') text = '🤖 С ботом';
         else if (mode.includes('multi')) text = '👥 ' + mode;
         
         button.textContent = text;
         
         button.addEventListener('click', () => {
             modal.classList.remove('active');
-            if (mode.includes('multi')) {
-                showMultiplayerModal(game, mode);
-            } else {
-                startGame(game, mode);
-            }
+            startGame(game, mode);
         });
         
-        buttonsDiv.appendChild(button);
+        modesGrid.appendChild(button);
     });
     
     modal.classList.add('active');
 }
 
-// Показ мультиплеер модалки
-function showMultiplayerModal(game, mode) {
-    const modal = document.getElementById('multiplayerModal');
-    modal.classList.add('active');
-    
-    // Получаем максимальное количество игроков из режима
-    const maxPlayers = parseInt(mode.match(/\d+/g).pop());
-    
-    document.getElementById('createRoomBtn').onclick = async () => {
-        const room = await multiplayerManager.createRoom(game.id, maxPlayers);
-        if (room) {
-            modal.classList.remove('active');
-            startGame(game, 'multiplayer', room);
-        }
-    };
-    
-    document.getElementById('joinRoomBtn').onclick = async () => {
-        const code = document.getElementById('roomCode').value;
-        if (code) {
-            const room = await multiplayerManager.joinRoom(code);
-            if (room) {
-                modal.classList.remove('active');
-                startGame(game, 'multiplayer', room);
-            }
-        }
-    };
-    
-    // Обновляем список комнат
-    updateRoomsList();
-}
-
-// Обновление списка комнат
-async function updateRoomsList() {
-    const rooms = await multiplayerManager.getRooms();
-    const list = document.getElementById('roomsList');
-    
-    list.innerHTML = rooms.map(room => `
-        <div class="room-item">
-            <span>Комната ${room.code}</span>
-            <span>${room.players.length}/${room.maxPlayers}</span>
-            <button class="btn-primary" onclick="joinRoom('${room.code}')">Присоединиться</button>
-        </div>
-    `).join('');
-}
-
 // Запуск игры
-function startGame(game, mode, room = null) {
+function startGame(game, mode) {
     const container = document.getElementById('gameContainer');
     const frame = document.getElementById('gameFrame');
+    const controlsInfo = document.getElementById('gameControlsInfo');
+    
+    // Получаем бинды для игры
+    const binds = settingsManager.getGameBinds(game.id);
+    
+    // Показываем подсказку с клавишами
+    let controlsHtml = '';
+    for (let [action, key] of Object.entries(binds)) {
+        let actionName = {
+            'up': 'Вверх',
+            'down': 'Вниз', 
+            'left': 'Влево',
+            'right': 'Вправо',
+            'pause': 'Пауза',
+            'rotate': 'Поворот',
+            'hardDrop': 'Сброс',
+            'player1_up': 'P1 ↑',
+            'player1_down': 'P1 ↓',
+            'player2_up': 'P2 ↑',
+            'player2_down': 'P2 ↓'
+        }[action] || action;
+        
+        controlsHtml += `<div class="control-badge">${actionName}: <span>${settingsManager.getReadableKey(key)}</span></div>`;
+    }
+    controlsInfo.innerHTML = controlsHtml;
     
     // Передаем параметры в игру через URL
-    let url = `${game.path}?mode=${mode}`;
-    if (room) {
-        url += `&room=${room.code}&playerId=${multiplayerManager.playerId}`;
-    }
-    
-    // Добавляем бинды в URL
-    const binds = settingsManager.getGameBinds(game.id);
-    url += `&binds=${encodeURIComponent(JSON.stringify(binds))}`;
-    
+    const url = `${game.path}?mode=${mode}&binds=${encodeURIComponent(JSON.stringify(binds))}`;
     frame.src = url;
+    
     container.classList.add('active');
 }
 
@@ -162,10 +150,10 @@ function initSearch() {
             const gameId = card.dataset.gameId;
             const game = gamesDatabase.find(g => g.id === gameId);
             
-            const matches = game.name.ru.toLowerCase().includes(query) ||
-                           game.name.en.toLowerCase().includes(query) ||
-                           game.description.ru.toLowerCase().includes(query) ||
-                           game.description.en.toLowerCase().includes(query);
+            // Поиск по названию, русским и английским ключевым словам
+            const matches = game.name.toLowerCase().includes(query) ||
+                           (game.ru && game.ru.toLowerCase().includes(query)) ||
+                           (game.en && game.en.toLowerCase().includes(query));
             
             card.style.display = matches ? 'block' : 'none';
         });
@@ -197,7 +185,7 @@ function initSettings() {
         gamesList.innerHTML = '';
         
         gamesDatabase
-            .filter(game => game.name.ru.toLowerCase().includes(query))
+            .filter(game => game.name.toLowerCase().includes(query))
             .forEach(game => {
                 const item = document.createElement('div');
                 item.className = 'game-setting-item';
@@ -206,8 +194,8 @@ function initSettings() {
                 const bindCount = Object.keys(binds).length;
                 
                 item.innerHTML = `
-                    <img src="${game.icon}" alt="${game.name.ru}" class="game-icon">
-                    <span>${game.name.ru}</span>
+                    <img src="${game.icon}" alt="${game.name}" class="game-icon">
+                    <span>${game.name}</span>
                     <span class="bind-info">${bindCount} клавиш</span>
                 `;
                 
@@ -224,7 +212,7 @@ function showBindModal(game) {
     const title = document.getElementById('bindGameTitle');
     const list = document.getElementById('bindingsList');
     
-    title.textContent = `Настройка управления - ${game.name.ru}`;
+    title.textContent = `Настройка управления - ${game.name}`;
     list.innerHTML = '';
     
     const binds = settingsManager.getGameBinds(game.id);
@@ -234,8 +222,7 @@ function showBindModal(game) {
         item.className = 'bind-item';
         
         // Красивое название действия
-        let actionName = action;
-        const actionNames = {
+        let actionName = {
             'up': 'Вверх',
             'down': 'Вниз',
             'left': 'Влево',
@@ -247,13 +234,11 @@ function showBindModal(game) {
             'player1_down': 'Игрок 1 - Вниз',
             'player2_up': 'Игрок 2 - Вверх',
             'player2_down': 'Игрок 2 - Вниз'
-        };
-        
-        actionName = actionNames[action] || action;
+        }[action] || action;
         
         item.innerHTML = `
             <span>${actionName}</span>
-            <span class="bind-key" data-action="${action}">${key}</span>
+            <span class="bind-key" data-action="${action}">${settingsManager.getReadableKey(key)}</span>
         `;
         
         const keySpan = item.querySelector('.bind-key');
@@ -265,9 +250,12 @@ function showBindModal(game) {
             const key = await waitForKeyPress();
             
             keySpan.classList.remove('recording');
-            keySpan.textContent = key;
             
-            settingsManager.updateBind(game.id, action, key);
+            // Нормализуем клавишу (конвертируем русскую в английскую)
+            const normalizedKey = settingsManager.normalizeKey(key);
+            keySpan.textContent = settingsManager.getReadableKey(normalizedKey);
+            
+            settingsManager.updateBind(game.id, action, normalizedKey);
         });
         
         list.appendChild(item);
@@ -285,15 +273,23 @@ function showBindModal(game) {
     modal.classList.add('active');
 }
 
-// Ожидание нажатия клавиши
+// Ожидание нажатия клавиши (ESC нельзя записать)
 function waitForKeyPress() {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         const handler = (e) => {
             e.preventDefault();
             document.removeEventListener('keydown', handler);
             
+            // Запрещаем устанавливать ESC
+            if (e.key === 'Escape') {
+                alert('Клавиша ESC зарезервирована для закрытия игры!');
+                resolve('Escape'); // Но не сохраним
+                return;
+            }
+            
             let key = e.key;
             if (key === ' ') key = 'Space';
+            if (key.startsWith('Arrow')) key = key;
             
             resolve(key);
         };
@@ -318,32 +314,7 @@ function initModals() {
         document.getElementById('modeModal').classList.remove('active');
     });
     
-    document.getElementById('closeMultiplayerModal').addEventListener('click', () => {
-        document.getElementById('multiplayerModal').classList.remove('active');
-    });
-    
     document.getElementById('closeBindModal').addEventListener('click', () => {
         document.getElementById('bindModal').classList.remove('active');
     });
-    
-    // Закрытие игры по Escape
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            const gameContainer = document.getElementById('gameContainer');
-            if (gameContainer.classList.contains('active')) {
-                gameContainer.classList.remove('active');
-                document.getElementById('gameFrame').src = '';
-            }
-        }
-    });
 }
-
-// Вспомогательная функция для присоединения к комнате
-window.joinRoom = async (code) => {
-    const room = await multiplayerManager.joinRoom(code);
-    if (room) {
-        document.getElementById('multiplayerModal').classList.remove('active');
-        const game = gamesDatabase.find(g => g.id === room.gameId);
-        startGame(game, 'multiplayer', room);
-    }
-};
