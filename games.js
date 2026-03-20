@@ -2,65 +2,38 @@
 const gamesDatabase = [
     {
         id: 'snake',
-        name: {
-            en: 'Snake',
-            ru: 'Змейка'
-        },
-        description: {
-            en: 'Classic snake game',
-            ru: 'Классическая змейка'
-        },
+        name: 'Snake', // Отображаемое название
+        ru: 'Змейка, змея', // Для поиска по-русски
+        en: 'Snake', // Для поиска по-английски
         icon: 'icons/snake.png',
         path: 'games/snake/',
-        modes: ['1P', 'bot', 'multi(2-6)', 'multi(2-3)'],
-        defaultBinds: {
-            'up': 'ArrowUp',
-            'down': 'ArrowDown',
-            'left': 'ArrowLeft',
-            'right': 'ArrowRight',
-            'pause': 'Escape'
-        }
+        modes: ['1P'] // Только одиночная
     },
     {
         id: 'tetris',
-        name: {
-            en: 'Tetris',
-            ru: 'Тетрис'
-        },
-        description: {
-            en: 'Classic tetris game',
-            ru: 'Классический тетрис'
-        },
+        name: 'Tetris',
+        ru: 'Тетрис, тетрис',
+        en: 'Tetris',
         icon: 'icons/tetris.png',
         path: 'games/tetris/',
-        modes: ['1P', 'bot'],
-        defaultBinds: {
-            'left': 'ArrowLeft',
-            'right': 'ArrowRight',
-            'rotate': 'ArrowUp',
-            'hardDrop': 'Space',
-            'pause': 'Escape'
-        }
+        modes: ['1P', 'bot']
     },
     {
         id: 'pong',
-        name: {
-            en: 'Pong',
-            ru: 'Понг'
-        },
-        description: {
-            en: 'Classic pong game',
-            ru: 'Классический понг'
-        },
+        name: 'Pong',
+        ru: 'Понг, теннис',
+        en: 'Pong',
         icon: 'icons/pong.png',
         path: 'games/pong/',
-        modes: ['multi(2)', 'bot'],
-        defaultBinds: {
-            'player1_up': 'KeyW',
-            'player1_down': 'KeyS',
-            'player2_up': 'ArrowUp',
-            'player2_down': 'ArrowDown',
-            'pause': 'Escape'
-        }
+        modes: ['multi(2)', 'bot']
+    },
+    {
+        id: 'chess',
+        name: 'Chess',
+        ru: 'Шахматы, шахматы',
+        en: 'Chess',
+        icon: 'icons/chess.png',
+        path: 'games/chess/',
+        modes: ['multi(2)', 'bot']
     }
 ];
