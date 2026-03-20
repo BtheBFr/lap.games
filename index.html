@@ -23,17 +23,15 @@
                 </div>
             </div>
             
-            <div class="header-actions">
-                <button class="btn-settings" id="openSettings">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z" stroke="currentColor" stroke-width="1.5"/>
-                        <path d="M19.5 12C19.5 11.9 19.5 11.8 19.49 11.7L21.42 10.1C21.61 9.94 21.66 9.66 21.53 9.44L19.57 5.97C19.44 5.75 19.17 5.66 18.93 5.74L16.68 6.53C16.31 6.27 15.91 6.05 15.49 5.88L15.14 3.48C15.1 3.21 14.87 3 14.6 3H9.4C9.13 3 8.9 3.21 8.86 3.48L8.51 5.88C8.09 6.05 7.69 6.27 7.32 6.53L5.07 5.74C4.83 5.66 4.56 5.75 4.43 5.97L2.47 9.44C2.34 9.66 2.39 9.94 2.58 10.1L4.51 11.7C4.5 11.8 4.5 11.9 4.5 12C4.5 12.1 4.5 12.2 4.51 12.3L2.58 13.9C2.39 14.06 2.34 14.34 2.47 14.56L4.43 18.03C4.56 18.25 4.83 18.34 5.07 18.26L7.32 17.47C7.69 17.73 8.09 17.95 8.51 18.12L8.86 20.52C8.9 20.79 9.13 21 9.4 21H14.6C14.87 21 15.1 20.79 15.14 20.52L15.49 18.12C15.91 17.95 16.31 17.73 16.68 17.47L18.93 18.26C19.17 18.34 19.44 18.25 19.57 18.03L21.53 14.56C21.66 14.34 21.61 14.06 21.42 13.9L19.49 12.3C19.5 12.2 19.5 12.1 19.5 12Z" stroke="currentColor" stroke-width="1.5"/>
-                    </svg>
-                </button>
-            </div>
+            <button class="btn-settings" id="openSettings">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M19.5 12C19.5 11.9 19.5 11.8 19.49 11.7L21.42 10.1C21.61 9.94 21.66 9.66 21.53 9.44L19.57 5.97C19.44 5.75 19.17 5.66 18.93 5.74L16.68 6.53C16.31 6.27 15.91 6.05 15.49 5.88L15.14 3.48C15.1 3.21 14.87 3 14.6 3H9.4C9.13 3 8.9 3.21 8.86 3.48L8.51 5.88C8.09 6.05 7.69 6.27 7.32 6.53L5.07 5.74C4.83 5.66 4.56 5.75 4.43 5.97L2.47 9.44C2.34 9.66 2.39 9.94 2.58 10.1L4.51 11.7C4.5 11.8 4.5 11.9 4.5 12C4.5 12.1 4.5 12.2 4.51 12.3L2.58 13.9C2.39 14.06 2.34 14.34 2.47 14.56L4.43 18.03C4.56 18.25 4.83 18.34 5.07 18.26L7.32 17.47C7.69 17.73 8.09 17.95 8.51 18.12L8.86 20.52C8.9 20.79 9.13 21 9.4 21H14.6C14.87 21 15.1 20.79 15.14 20.52L15.49 18.12C15.91 17.95 16.31 17.73 16.68 17.47L18.93 18.26C19.17 18.34 19.44 18.25 19.57 18.03L21.53 14.56C21.66 14.34 21.61 14.06 21.42 13.9L19.49 12.3C19.5 12.2 19.5 12.1 19.5 12Z" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+            </button>
         </header>
 
-        <!-- Поиск -->
+        <!-- Поиск как в главном меню -->
         <div class="search-section">
             <input type="text" class="search-input" id="searchInput" placeholder="Поиск игр...">
         </div>
@@ -45,31 +43,8 @@
         <div class="modal" id="modeModal">
             <div class="modal-content">
                 <h2 id="modalGameTitle">Выберите режим</h2>
-                <div class="mode-buttons" id="modeButtons"></div>
+                <div class="modes-grid" id="modesGrid"></div>
                 <button class="btn-close-modal" id="closeModeModal">Закрыть</button>
-            </div>
-        </div>
-
-        <!-- Модальное окно мультиплеера -->
-        <div class="modal" id="multiplayerModal">
-            <div class="modal-content">
-                <h2>Мультиплеер</h2>
-                <div class="multiplayer-options">
-                    <div class="create-room">
-                        <h3>Создать комнату</h3>
-                        <button class="btn-primary" id="createRoomBtn">Создать</button>
-                    </div>
-                    <div class="join-room">
-                        <h3>Присоединиться</h3>
-                        <input type="text" class="room-code-input" id="roomCode" placeholder="Введите код комнаты">
-                        <button class="btn-primary" id="joinRoomBtn">Присоединиться</button>
-                    </div>
-                    <div class="available-rooms">
-                        <h3>Доступные комнаты</h3>
-                        <div id="roomsList" class="rooms-list"></div>
-                    </div>
-                </div>
-                <button class="btn-close-modal" id="closeMultiplayerModal">Закрыть</button>
             </div>
         </div>
 
@@ -78,7 +53,7 @@
             <div class="modal-content settings-modal">
                 <h2>Настройки управления</h2>
                 <div class="settings-search">
-                    <input type="text" id="settingsSearch" placeholder="Поиск игры...">
+                    <input type="text" class="search-input" id="settingsSearch" placeholder="Поиск игры...">
                 </div>
                 <div class="games-settings-list" id="gamesSettingsList"></div>
                 <button class="btn-close-modal" id="closeSettings">Закрыть</button>
@@ -89,6 +64,7 @@
         <div class="modal" id="bindModal">
             <div class="modal-content bind-modal">
                 <h2 id="bindGameTitle">Настройка управления</h2>
+                <p class="bind-note">ESC - закрыть игру (нельзя изменить)</p>
                 <div class="bindings-list" id="bindingsList"></div>
                 <div class="bind-actions">
                     <button class="btn-primary" id="saveBinds">Сохранить</button>
@@ -100,13 +76,16 @@
 
         <!-- Контейнер для игры -->
         <div class="game-container" id="gameContainer">
+            <div class="game-header">
+                <div class="game-controls-info" id="gameControlsInfo"></div>
+                <button class="btn-close-game" id="closeGameBtn">✕</button>
+            </div>
             <iframe id="gameFrame" frameborder="0"></iframe>
         </div>
     </div>
 
     <script src="games.js"></script>
     <script src="settings.js"></script>
-    <script src="multiplayer.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
