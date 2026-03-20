@@ -49,10 +49,7 @@ function generateFood() {
 function update() {
     if (!gameRunning || paused) return;
     
-    // Обновляем направление
     direction = nextDirection;
-    
-    // Получаем новую голову
     const head = {...snake[0]};
     
     switch(direction) {
@@ -62,22 +59,19 @@ function update() {
         case 'down': head.y++; break;
     }
     
-    // Проверка на столкновение со стенами
+    // Проверка на столкновение
     if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
         gameOver();
         return;
     }
     
-    // Проверка на столкновение с собой
     if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
         gameOver();
         return;
     }
     
-    // Добавляем новую голову
     snake.unshift(head);
     
-    // Проверка на еду
     if (head.x === food.x && head.y === food.y) {
         score += 10;
         scoreElement.textContent = score;
@@ -87,15 +81,14 @@ function update() {
     }
 }
 
-// Отрисовка (60fps)
+// Отрисовка
 function draw() {
     if (!gameRunning) return;
     
-    // Очистка
     ctx.fillStyle = '#14181c';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Рисуем сетку
+    // Сетка
     ctx.strokeStyle = '#2a323c';
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= gridSize; i++) {
@@ -110,7 +103,7 @@ function draw() {
         ctx.stroke();
     }
     
-    // Рисуем змейку
+    // Змейка
     snake.forEach((segment, index) => {
         const isHead = index === 0;
         ctx.fillStyle = isHead ? '#7b4ae2' : '#9d7aef';
@@ -128,7 +121,7 @@ function draw() {
         ctx.fill();
     });
     
-    // Рисуем еду
+    // Еда
     ctx.shadowColor = '#ff4d4d';
     ctx.shadowBlur = 15;
     ctx.fillStyle = '#ff4d4d';
@@ -142,7 +135,7 @@ function draw() {
     );
     ctx.fill();
     
-    // Если пауза
+    // Пауза
     if (paused) {
         ctx.shadowBlur = 0;
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -153,7 +146,6 @@ function draw() {
         ctx.fillText('ПАУЗА', canvas.width/2, canvas.height/2);
     }
     
-    // Сбрасываем тень
     ctx.shadowBlur = 0;
 }
 
@@ -199,45 +191,48 @@ function closeGame() {
     window.parent.postMessage('closeGame', '*');
 }
 
-// Игровой тик (обновление логики)
+// Игровой тик
 let lastUpdate = 0;
-const UPDATE_INTERVAL = 150; // 150ms между обновлениями
+const UPDATE_INTERVAL = 150;
 
 function gameTick(timestamp) {
     if (!gameRunning) return;
     
-    // Обновляем логику с фиксированным интервалом
     if (timestamp - lastUpdate > UPDATE_INTERVAL) {
         update();
         lastUpdate = timestamp;
     }
     
-    // Рендерим каждый кадр (60fps)
     draw();
-    
     gameLoop = requestAnimationFrame(gameTick);
 }
 
-// Управление
+// УПРАВЛЕНИЕ - ИСПРАВЛЕНО!
 document.addEventListener('keydown', (e) => {
-    if (!gameRunning) return;
-    
-    // ESC - закрыть игру (обрабатывается родителем)
+    // ESC всегда закрывает игру (НИКАКОЙ ПАУЗЫ!)
     if (e.key === 'Escape') {
+        closeGame();
         return;
     }
+    
+    if (!gameRunning) return;
     
     // Проверяем бинды
     if (isKeyPressed(e, binds.up) && direction !== 'down') {
         nextDirection = 'up';
+        e.preventDefault();
     } else if (isKeyPressed(e, binds.down) && direction !== 'up') {
         nextDirection = 'down';
+        e.preventDefault();
     } else if (isKeyPressed(e, binds.left) && direction !== 'right') {
         nextDirection = 'left';
+        e.preventDefault();
     } else if (isKeyPressed(e, binds.right) && direction !== 'left') {
         nextDirection = 'right';
+        e.preventDefault();
     } else if (isKeyPressed(e, binds.pause)) {
         paused = !paused;
+        e.preventDefault();
     }
 });
 
@@ -248,6 +243,6 @@ window.addEventListener('message', (e) => {
     }
 });
 
-// Запуск игры
+// Запуск
 init();
 gameLoop = requestAnimationFrame(gameTick);
