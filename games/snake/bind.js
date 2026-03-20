@@ -6,41 +6,58 @@ try {
     const bindsParam = urlParams.get('binds');
     if (bindsParam) {
         gameBinds = JSON.parse(decodeURIComponent(bindsParam));
+        // Конвертируем все значения в большие буквы
+        for (let key in gameBinds) {
+            if (gameBinds[key] && gameBinds[key].length === 1) {
+                gameBinds[key] = gameBinds[key].toUpperCase();
+            }
+        }
     }
 } catch (e) {
     console.error('Ошибка загрузки биндов:', e);
 }
 
-// Дефолтные бинды (пауза на P, ESC закрывает игру)
+// Дефолтные бинды (ВСЕ В БОЛЬШИХ БУКВАХ)
 const defaultBinds = {
-    'up': 'ArrowUp',
-    'down': 'ArrowDown',
-    'left': 'ArrowLeft',
-    'right': 'ArrowRight',
-    'pause': 'KeyP'
+    'up': 'ARROWUP',
+    'down': 'ARROWDOWN',
+    'left': 'ARROWLEFT',
+    'right': 'ARROWRIGHT',
+    'pause': 'P'
 };
 
 // Объединяем с дефолтными
 const binds = { ...defaultBinds, ...gameBinds };
 
-// Конвертация русских букв в английские
+// Конвертация русских букв в английские (большие)
 function isKeyPressed(event, targetKey) {
     const ruToEn = {
-        'й': 'q', 'ц': 'w', 'у': 'e', 'к': 'r', 'е': 't', 'н': 'y', 'г': 'u', 'ш': 'i', 'щ': 'o', 'з': 'p', 'х': '[', 'ъ': ']',
-        'ф': 'a', 'ы': 's', 'в': 'd', 'а': 'f', 'п': 'g', 'р': 'h', 'о': 'j', 'л': 'k', 'д': 'l', 'ж': ';', 'э': "'",
-        'я': 'z', 'ч': 'x', 'с': 'c', 'м': 'v', 'и': 'b', 'т': 'n', 'ь': 'b', 'б': ',', 'ю': '.',
+        'й': 'Q', 'ц': 'W', 'у': 'E', 'к': 'R', 'е': 'T', 'н': 'Y', 'г': 'U', 'ш': 'I', 'щ': 'O', 'з': 'P', 'х': '[', 'ъ': ']',
+        'ф': 'A', 'ы': 'S', 'в': 'D', 'а': 'F', 'п': 'G', 'р': 'H', 'о': 'J', 'л': 'K', 'д': 'L', 'ж': ';', 'э': "'",
+        'я': 'Z', 'ч': 'X', 'с': 'C', 'м': 'V', 'и': 'B', 'т': 'N', 'ь': 'B', 'б': ',', 'ю': '.',
         'Й': 'Q', 'Ц': 'W', 'У': 'E', 'К': 'R', 'Е': 'T', 'Н': 'Y', 'Г': 'U', 'Ш': 'I', 'Щ': 'O', 'З': 'P', 'Х': '{', 'Ъ': '}',
         'Ф': 'A', 'Ы': 'S', 'В': 'D', 'А': 'F', 'П': 'G', 'Р': 'H', 'О': 'J', 'Л': 'K', 'Д': 'L', 'Ж': ':', 'Э': '"',
         'Я': 'Z', 'Ч': 'X', 'С': 'C', 'М': 'V', 'И': 'B', 'Т': 'N', 'Ь': 'B', 'Б': '<', 'Ю': '>'
     };
     
-    const pressedKey = event.key;
-    const normalizedPressed = ruToEn[pressedKey] || pressedKey;
+    let pressedKey = event.key;
     
-    if (targetKey === 'Space') return pressedKey === ' ';
-    if (targetKey.startsWith('Arrow')) return pressedKey === targetKey;
-    if (targetKey === 'Enter') return pressedKey === 'Enter';
+    // Конвертируем русские буквы в английские
+    if (ruToEn[pressedKey]) {
+        pressedKey = ruToEn[pressedKey];
+    } else if (pressedKey.length === 1) {
+        // Приводим обычные буквы к верхнему регистру
+        pressedKey = pressedKey.toUpperCase();
+    }
     
-    const cleanTarget = targetKey.replace('Key', '');
-    return normalizedPressed.toLowerCase() === cleanTarget.toLowerCase();
+    // Для стрелок
+    if (pressedKey === 'ARROWUP' || pressedKey === 'ArrowUp') pressedKey = 'ARROWUP';
+    if (pressedKey === 'ARROWDOWN' || pressedKey === 'ArrowDown') pressedKey = 'ARROWDOWN';
+    if (pressedKey === 'ARROWLEFT' || pressedKey === 'ArrowLeft') pressedKey = 'ARROWLEFT';
+    if (pressedKey === 'ARROWRIGHT' || pressedKey === 'ArrowRight') pressedKey = 'ARROWRIGHT';
+    if (pressedKey === ' ') pressedKey = 'SPACE';
+    
+    // Сравниваем
+    const cleanTarget = targetKey.toUpperCase();
+    return pressedKey === cleanTarget;
 }
