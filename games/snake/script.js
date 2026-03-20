@@ -20,6 +20,7 @@ let nextDirection = 'right';
 let score = 0;
 let gameRunning = false;
 let gameLoop = null;
+let paused = false;
 
 // Инициализация
 function init() {
@@ -30,6 +31,7 @@ function init() {
     scoreElement.textContent = score;
     generateFood();
     gameRunning = true;
+    paused = false;
     gameOverElement.style.display = 'none';
 }
 
@@ -45,7 +47,7 @@ function generateFood() {
 
 // Обновление игры
 function update() {
-    if (!gameRunning) return;
+    if (!gameRunning || paused) return;
     
     // Обновляем направление
     direction = nextDirection;
@@ -83,12 +85,12 @@ function update() {
     } else {
         snake.pop();
     }
-    
-    draw();
 }
 
-// Отрисовка
+// Отрисовка (60fps)
 function draw() {
+    if (!gameRunning) return;
+    
     // Очистка
     ctx.fillStyle = '#14181c';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -140,6 +142,17 @@ function draw() {
     );
     ctx.fill();
     
+    // Если пауза
+    if (paused) {
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.font = '30px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('ПАУЗА', canvas.width/2, canvas.height/2);
+    }
+    
     // Сбрасываем тень
     ctx.shadowBlur = 0;
 }
@@ -165,7 +178,7 @@ CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
 function gameOver() {
     gameRunning = false;
     if (gameLoop) {
-        clearInterval(gameLoop);
+        cancelAnimationFrame(gameLoop);
         gameLoop = null;
     }
     finalScoreElement.textContent = score;
@@ -175,10 +188,10 @@ function gameOver() {
 // Рестарт
 function restartGame() {
     if (gameLoop) {
-        clearInterval(gameLoop);
+        cancelAnimationFrame(gameLoop);
     }
     init();
-    gameLoop = setInterval(update, 150);
+    gameLoop = requestAnimationFrame(gameTick);
 }
 
 // Закрыть игру
@@ -186,27 +199,45 @@ function closeGame() {
     window.parent.postMessage('closeGame', '*');
 }
 
+// Игровой тик (обновление логики)
+let lastUpdate = 0;
+const UPDATE_INTERVAL = 150; // 150ms между обновлениями
+
+function gameTick(timestamp) {
+    if (!gameRunning) return;
+    
+    // Обновляем логику с фиксированным интервалом
+    if (timestamp - lastUpdate > UPDATE_INTERVAL) {
+        update();
+        lastUpdate = timestamp;
+    }
+    
+    // Рендерим каждый кадр (60fps)
+    draw();
+    
+    gameLoop = requestAnimationFrame(gameTick);
+}
+
 // Управление
 document.addEventListener('keydown', (e) => {
     if (!gameRunning) return;
     
+    // ESC - закрыть игру (обрабатывается родителем)
+    if (e.key === 'Escape') {
+        return;
+    }
+    
     // Проверяем бинды
-    switch(e.key) {
-        case binds.up:
-            if (direction !== 'down') nextDirection = 'up';
-            break;
-        case binds.down:
-            if (direction !== 'up') nextDirection = 'down';
-            break;
-        case binds.left:
-            if (direction !== 'right') nextDirection = 'left';
-            break;
-        case binds.right:
-            if (direction !== 'left') nextDirection = 'right';
-            break;
-        case binds.pause:
-            // Пауза
-            break;
+    if (isKeyPressed(e, binds.up) && direction !== 'down') {
+        nextDirection = 'up';
+    } else if (isKeyPressed(e, binds.down) && direction !== 'up') {
+        nextDirection = 'down';
+    } else if (isKeyPressed(e, binds.left) && direction !== 'right') {
+        nextDirection = 'left';
+    } else if (isKeyPressed(e, binds.right) && direction !== 'left') {
+        nextDirection = 'right';
+    } else if (isKeyPressed(e, binds.pause)) {
+        paused = !paused;
     }
 });
 
@@ -219,4 +250,4 @@ window.addEventListener('message', (e) => {
 
 // Запуск игры
 init();
-gameLoop = setInterval(update, 150);
+gameLoop = requestAnimationFrame(gameTick);
