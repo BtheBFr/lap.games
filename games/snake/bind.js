@@ -17,19 +17,19 @@ try {
     console.error('Ошибка загрузки биндов:', e);
 }
 
-// Дефолтные бинды (ВСЕ В БОЛЬШИХ БУКВАХ)
+// ДЕФОЛТНЫЕ БИНДЫ - СТРЕЛОЧКИ!
 const defaultBinds = {
     'up': 'ARROWUP',
     'down': 'ARROWDOWN',
     'left': 'ARROWLEFT',
     'right': 'ARROWRIGHT',
-    'pause': 'P'
+    'pause': 'P'  // ПАУЗА НА P
 };
 
 // Объединяем с дефолтными
 const binds = { ...defaultBinds, ...gameBinds };
 
-// Конвертация русских букв в английские (большие)
+// Конвертация русских букв в английские
 function isKeyPressed(event, targetKey) {
     const ruToEn = {
         'й': 'Q', 'ц': 'W', 'у': 'E', 'к': 'R', 'е': 'T', 'н': 'Y', 'г': 'U', 'ш': 'I', 'щ': 'O', 'з': 'P', 'х': '[', 'ъ': ']',
@@ -46,15 +46,14 @@ function isKeyPressed(event, targetKey) {
     if (ruToEn[pressedKey]) {
         pressedKey = ruToEn[pressedKey];
     } else if (pressedKey.length === 1) {
-        // Приводим обычные буквы к верхнему регистру
         pressedKey = pressedKey.toUpperCase();
     }
     
-    // Для стрелок
-    if (pressedKey === 'ARROWUP' || pressedKey === 'ArrowUp') pressedKey = 'ARROWUP';
-    if (pressedKey === 'ARROWDOWN' || pressedKey === 'ArrowDown') pressedKey = 'ARROWDOWN';
-    if (pressedKey === 'ARROWLEFT' || pressedKey === 'ArrowLeft') pressedKey = 'ARROWLEFT';
-    if (pressedKey === 'ARROWRIGHT' || pressedKey === 'ArrowRight') pressedKey = 'ARROWRIGHT';
+    // Нормализуем стрелки
+    if (pressedKey === 'ArrowUp') pressedKey = 'ARROWUP';
+    if (pressedKey === 'ArrowDown') pressedKey = 'ARROWDOWN';
+    if (pressedKey === 'ArrowLeft') pressedKey = 'ARROWLEFT';
+    if (pressedKey === 'ArrowRight') pressedKey = 'ARROWRIGHT';
     if (pressedKey === ' ') pressedKey = 'SPACE';
     
     // Сравниваем
