@@ -4,13 +4,11 @@ const scoreElement = document.getElementById('score');
 const gameOverElement = document.getElementById('gameOver');
 const finalScoreElement = document.getElementById('finalScore');
 
-// Размеры
 canvas.width = 400;
 canvas.height = 400;
 const gridSize = 20;
 const cellSize = canvas.width / gridSize;
 
-// Переменные игры
 let snake = [{x: 10, y: 10}];
 let food = {};
 let direction = 'right';
@@ -20,7 +18,8 @@ let gameRunning = true;
 let gameLoop = null;
 let paused = false;
 
-// Инициализация
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 function init() {
     snake = [{x: 10, y: 10}];
     direction = 'right';
@@ -33,7 +32,6 @@ function init() {
     gameOverElement.style.display = 'none';
 }
 
-// Генерация еды
 function generateFood() {
     do {
         food = {
@@ -43,7 +41,6 @@ function generateFood() {
     } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
 }
 
-// Обновление игры
 function update() {
     if (!gameRunning || paused) return;
     
@@ -78,7 +75,6 @@ function update() {
     }
 }
 
-// Отрисовка
 function draw() {
     if (!gameRunning) return;
     
@@ -92,7 +88,6 @@ function draw() {
         ctx.moveTo(i * cellSize, 0);
         ctx.lineTo(i * cellSize, canvas.height);
         ctx.stroke();
-        
         ctx.beginPath();
         ctx.moveTo(0, i * cellSize);
         ctx.lineTo(canvas.width, i * cellSize);
@@ -101,25 +96,17 @@ function draw() {
     
     snake.forEach((segment, index) => {
         const isHead = index === 0;
-        
         ctx.fillStyle = isHead ? '#7b4ae2' : '#9d7aef';
         ctx.shadowColor = isHead ? '#7b4ae2' : '#9d7aef';
         ctx.shadowBlur = 10;
         
         ctx.beginPath();
-        ctx.roundRect(
-            segment.x * cellSize + 2,
-            segment.y * cellSize + 2,
-            cellSize - 4,
-            cellSize - 4,
-            5
-        );
+        ctx.roundRect(segment.x * cellSize + 2, segment.y * cellSize + 2, cellSize - 4, cellSize - 4, 5);
         ctx.fill();
         
         if (isHead) {
             ctx.fillStyle = 'white';
             ctx.shadowBlur = 0;
-            
             const eyeSize = cellSize / 6;
             const eyeOffset = cellSize / 3;
             
@@ -130,7 +117,6 @@ function draw() {
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
                 ctx.fill();
-                
                 ctx.fillStyle = '#000';
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + cellSize - eyeOffset + 2, segment.y * cellSize + eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
@@ -138,15 +124,13 @@ function draw() {
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + cellSize - eyeOffset + 2, segment.y * cellSize + cellSize - eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
                 ctx.fill();
-            } 
-            else if (direction === 'left') {
+            } else if (direction === 'left') {
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
                 ctx.fill();
-                
                 ctx.fillStyle = '#000';
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + eyeOffset - 2, segment.y * cellSize + eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
@@ -154,15 +138,13 @@ function draw() {
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + eyeOffset - 2, segment.y * cellSize + cellSize - eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
                 ctx.fill();
-            }
-            else if (direction === 'up') {
+            } else if (direction === 'up') {
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
                 ctx.fill();
-                
                 ctx.fillStyle = '#000';
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset - 2, eyeSize/1.5, 0, Math.PI * 2);
@@ -170,15 +152,13 @@ function draw() {
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset - 2, eyeSize/1.5, 0, Math.PI * 2);
                 ctx.fill();
-            }
-            else if (direction === 'down') {
+            } else if (direction === 'down') {
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
                 ctx.fill();
-                
                 ctx.fillStyle = '#000';
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset + 2, eyeSize/1.5, 0, Math.PI * 2);
@@ -194,13 +174,7 @@ function draw() {
     ctx.shadowBlur = 15;
     ctx.fillStyle = '#ff4d4d';
     ctx.beginPath();
-    ctx.arc(
-        food.x * cellSize + cellSize / 2,
-        food.y * cellSize + cellSize / 2,
-        cellSize / 3,
-        0,
-        Math.PI * 2
-    );
+    ctx.arc(food.x * cellSize + cellSize / 2, food.y * cellSize + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
     ctx.fill();
     
     if (paused) {
@@ -259,28 +233,22 @@ const UPDATE_INTERVAL = 150;
 
 function gameTick(timestamp) {
     if (!gameRunning) return;
-    
     if (timestamp - lastUpdate > UPDATE_INTERVAL) {
         update();
         lastUpdate = timestamp;
     }
-    
     draw();
     gameLoop = requestAnimationFrame(gameTick);
 }
 
-// УПРАВЛЕНИЕ - ИСПРАВЛЕНО
 document.addEventListener('keydown', (e) => {
-    // ESC закрывает игру
     if (e.key === 'Escape') {
         e.preventDefault();
         closeGame();
         return;
     }
-    
     if (!gameRunning) return;
     
-    // Стрелочки
     if (e.key === 'ArrowUp' && direction !== 'down') {
         nextDirection = 'up';
         e.preventDefault();
@@ -293,18 +261,38 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === 'ArrowRight' && direction !== 'left') {
         nextDirection = 'right';
         e.preventDefault();
-    } 
-    // Пауза на P
-    else if (e.key === 'p' || e.key === 'P' || e.key === 'р' || e.key === 'Р') {
+    } else if (e.key === 'p' || e.key === 'P' || e.key === 'р' || e.key === 'Р') {
         paused = !paused;
         e.preventDefault();
     }
 });
 
+if (isMobile) {
+    let touchStartX = 0, touchStartY = 0;
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    });
+    canvas.addEventListener('touchmove', (e) => e.preventDefault());
+    canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        if (!gameRunning) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 0 && direction !== 'left') nextDirection = 'right';
+            else if (dx < 0 && direction !== 'right') nextDirection = 'left';
+        } else {
+            if (dy > 0 && direction !== 'up') nextDirection = 'down';
+            else if (dy < 0 && direction !== 'down') nextDirection = 'up';
+        }
+    });
+}
+
 window.addEventListener('message', (e) => {
-    if (e.data === 'closeGame') {
-        closeGame();
-    }
+    if (e.data === 'closeGame') closeGame();
 });
 
 init();
