@@ -573,3 +573,60 @@ body {
         width: 100%;
     }
 }
+
+.game-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+    .game-card {
+        padding: 12px;
+    }
+    .game-icon {
+        width: 48px;
+        height: 48px;
+    }
+    .game-info h3 {
+        font-size: 1rem;
+    }
+    .game-container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+    }
+    .game-header {
+        padding: 8px 12px;
+    }
+    .game-controls-info {
+        font-size: 0.7rem;
+    }
+    .control-badge {
+        padding: 2px 6px;
+    }
+    .btn-close-game {
+        width: 32px;
+        height: 32px;
+    }
+    .logo h1 {
+        font-size: 1.5rem;
+    }
+    .logo-tagline {
+        font-size: 0.7rem;
+        flex-wrap: wrap;
+    }
+    .btn-settings {
+        width: 40px;
+        height: 40px;
+    }
+    .mode-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
