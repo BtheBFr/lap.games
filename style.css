@@ -22,7 +22,6 @@ body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
-    position: relative;
 }
 
 .noise-overlay {
@@ -45,7 +44,6 @@ body {
     z-index: 2;
 }
 
-/* Шапка */
 .header {
     display: flex;
     justify-content: space-between;
@@ -55,7 +53,6 @@ body {
     background: var(--bg-secondary);
     border-radius: 20px;
     border: 1px solid var(--border);
-    animation: slideDown 0.5s ease;
 }
 
 .logo h1 {
@@ -98,10 +95,8 @@ body {
     transform: rotate(30deg);
 }
 
-/* Поиск */
 .search-section {
     margin-bottom: 30px;
-    animation: fadeIn 0.5s ease 0.2s both;
 }
 
 .search-input {
@@ -121,7 +116,6 @@ body {
     box-shadow: 0 0 20px var(--accent-glow);
 }
 
-/* Сетка игр */
 .games-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -136,7 +130,6 @@ body {
     padding: 20px;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: scaleIn 0.5s ease;
 }
 
 .game-card:hover {
@@ -186,16 +179,15 @@ body {
     border: 1px solid var(--border);
 }
 
-/* Сетка режимов */
 .modes-grid {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 10px;
-    justify-content: center;
     margin: 20px 0;
 }
 
 .mode-btn {
+    width: 100%;
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
     border-radius: 30px;
@@ -212,7 +204,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Модальные окна */
 .modal {
     display: none;
     position: fixed;
@@ -225,7 +216,6 @@ body {
     z-index: 1000;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.3s ease;
 }
 
 .modal.active {
@@ -241,7 +231,6 @@ body {
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    animation: slideUp 0.3s ease;
 }
 
 .modal-content h2 {
@@ -249,7 +238,6 @@ body {
     color: var(--accent);
 }
 
-/* Настройки */
 .settings-modal {
     max-width: 600px;
 }
@@ -292,12 +280,11 @@ body {
     flex: 1;
 }
 
-.game-setting-item .bind-info {
+.bind-info {
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
-/* Бинды */
 .bind-modal {
     max-width: 400px;
 }
@@ -399,7 +386,6 @@ body {
     color: var(--accent);
 }
 
-/* Контейнер игры */
 .game-container {
     position: fixed;
     top: 50%;
@@ -479,59 +465,18 @@ body {
     border: none;
 }
 
-/* Анимации */
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes scaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.game-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
 }
 
 @keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.7;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
 }
 
-/* Скроллбар */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -547,38 +492,6 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--accent);
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .games-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    }
-    
-    .modal-content {
-        width: 95%;
-        padding: 20px;
-    }
-    
-    .game-container {
-        width: 95%;
-        height: 70vh;
-    }
-    
-    .modes-grid {
-        flex-direction: column;
-    }
-    
-    .mode-btn {
-        width: 100%;
-    }
-}
-
-.game-open {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
 }
 
 @media (max-width: 768px) {
@@ -624,9 +537,5 @@ body {
     .btn-settings {
         width: 40px;
         height: 40px;
-    }
-    .mode-btn {
-        padding: 10px 20px;
-        font-size: 0.9rem;
     }
 }
