@@ -4,13 +4,16 @@ const scoreElement = document.getElementById('score');
 const gameOverElement = document.getElementById('gameOver');
 const finalScoreElement = document.getElementById('finalScore');
 
-// Размеры - фиксированные
 canvas.width = 400;
 canvas.height = 400;
 const gridSize = 20;
 const cellSize = canvas.width / gridSize;
 
-let snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+let snake = [
+    {x: 10, y: 10},
+    {x: 9, y: 10},
+    {x: 8, y: 10}
+];
 let food = {x: 15, y: 10};
 let direction = 'right';
 let nextDirection = 'right';
@@ -22,7 +25,11 @@ let paused = false;
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 function init() {
-    snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+    snake = [
+        {x: 10, y: 10},
+        {x: 9, y: 10},
+        {x: 8, y: 10}
+    ];
     direction = 'right';
     nextDirection = 'right';
     score = 0;
@@ -48,7 +55,7 @@ function update() {
     if (!gameRunning || paused) return;
     
     direction = nextDirection;
-    const head = {...snake[0]};
+    const head = {x: snake[0].x, y: snake[0].y};
     
     switch(direction) {
         case 'right': head.x++; break;
@@ -57,13 +64,11 @@ function update() {
         case 'down': head.y++; break;
     }
     
-    // Проверка стен
     if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
         gameOver();
         return;
     }
     
-    // Проверка себя
     if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
         gameOver();
         return;
@@ -83,11 +88,9 @@ function update() {
 function draw() {
     if (!gameRunning) return;
     
-    // Очистка
     ctx.fillStyle = '#14181c';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Сетка
     ctx.strokeStyle = '#2a323c';
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= gridSize; i++) {
@@ -101,91 +104,55 @@ function draw() {
         ctx.stroke();
     }
     
-    // Змейка
-    snake.forEach((segment, index) => {
-        const isHead = index === 0;
+    for (let i = 0; i < snake.length; i++) {
+        const segment = snake[i];
+        const isHead = i === 0;
+        
         ctx.fillStyle = isHead ? '#7b4ae2' : '#9d7aef';
         ctx.shadowColor = isHead ? '#7b4ae2' : '#9d7aef';
         ctx.shadowBlur = 10;
         
-        ctx.beginPath();
-        ctx.roundRect(
+        ctx.fillRect(
             segment.x * cellSize + 2,
             segment.y * cellSize + 2,
             cellSize - 4,
-            cellSize - 4,
-            5
+            cellSize - 4
         );
-        ctx.fill();
         
-        // Глаза для головы
         if (isHead) {
             ctx.fillStyle = 'white';
             ctx.shadowBlur = 0;
-            const eyeSize = cellSize / 6;
-            const eyeOffset = cellSize / 3;
+            const eyeSize = 4;
+            const eyeOffset = 8;
             
             if (direction === 'right') {
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, eyeSize);
+                ctx.fillRect(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + cellSize - eyeOffset - eyeSize, eyeSize, eyeSize);
                 ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + cellSize - eyeOffset + 2, segment.y * cellSize + eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + cellSize - eyeOffset + 2, segment.y * cellSize + cellSize - eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(segment.x * cellSize + cellSize - eyeOffset + 2, segment.y * cellSize + eyeOffset + 1, 2, 2);
+                ctx.fillRect(segment.x * cellSize + cellSize - eyeOffset + 2, segment.y * cellSize + cellSize - eyeOffset - eyeSize + 1, 2, 2);
             } else if (direction === 'left') {
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(segment.x * cellSize + eyeOffset - eyeSize, segment.y * cellSize + eyeOffset, eyeSize, eyeSize);
+                ctx.fillRect(segment.x * cellSize + eyeOffset - eyeSize, segment.y * cellSize + cellSize - eyeOffset - eyeSize, eyeSize, eyeSize);
                 ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + eyeOffset - 2, segment.y * cellSize + eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + eyeOffset - 2, segment.y * cellSize + cellSize - eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(segment.x * cellSize + eyeOffset - eyeSize + 1, segment.y * cellSize + eyeOffset + 1, 2, 2);
+                ctx.fillRect(segment.x * cellSize + eyeOffset - eyeSize + 1, segment.y * cellSize + cellSize - eyeOffset - eyeSize + 1, 2, 2);
             } else if (direction === 'up') {
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset - eyeSize, eyeSize, eyeSize);
+                ctx.fillRect(segment.x * cellSize + cellSize - eyeOffset - eyeSize, segment.y * cellSize + eyeOffset - eyeSize, eyeSize, eyeSize);
                 ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset - 2, eyeSize/1.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset - 2, eyeSize/1.5, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(segment.x * cellSize + eyeOffset + 1, segment.y * cellSize + eyeOffset - eyeSize + 1, 2, 2);
+                ctx.fillRect(segment.x * cellSize + cellSize - eyeOffset - eyeSize + 1, segment.y * cellSize + eyeOffset - eyeSize + 1, 2, 2);
             } else if (direction === 'down') {
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, eyeSize);
+                ctx.fillRect(segment.x * cellSize + cellSize - eyeOffset - eyeSize, segment.y * cellSize + cellSize - eyeOffset, eyeSize, eyeSize);
                 ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset + 2, eyeSize/1.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + cellSize - eyeOffset + 2, eyeSize/1.5, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(segment.x * cellSize + eyeOffset + 1, segment.y * cellSize + cellSize - eyeOffset + 1, 2, 2);
+                ctx.fillRect(segment.x * cellSize + cellSize - eyeOffset - eyeSize + 1, segment.y * cellSize + cellSize - eyeOffset + 1, 2, 2);
             }
         }
-    });
+    }
     
-    // Еда
     ctx.shadowColor = '#ff4d4d';
     ctx.shadowBlur = 15;
     ctx.fillStyle = '#ff4d4d';
@@ -199,7 +166,6 @@ function draw() {
     );
     ctx.fill();
     
-    // Пауза
     if (paused) {
         ctx.shadowBlur = 0;
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -212,22 +178,6 @@ function draw() {
     
     ctx.shadowBlur = 0;
 }
-
-CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-    if (w < 2 * r) r = w / 2;
-    if (h < 2 * r) r = h / 2;
-    this.moveTo(x + r, y);
-    this.lineTo(x + w - r, y);
-    this.quadraticCurveTo(x + w, y, x + w, y + r);
-    this.lineTo(x + w, y + h - r);
-    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    this.lineTo(x + r, y + h);
-    this.quadraticCurveTo(x, y + h, x, y + h - r);
-    this.lineTo(x, y + r);
-    this.quadraticCurveTo(x, y, x + r, y);
-    this.closePath();
-    return this;
-};
 
 function gameOver() {
     gameRunning = false;
@@ -264,7 +214,6 @@ function gameTick(timestamp) {
     gameLoop = requestAnimationFrame(gameTick);
 }
 
-// Управление
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         e.preventDefault();
@@ -273,25 +222,24 @@ document.addEventListener('keydown', (e) => {
     }
     if (!gameRunning) return;
     
-    if (isKeyPressed(e, binds.up) && direction !== 'down') {
+    if (e.key === 'ArrowUp' && direction !== 'down') {
         nextDirection = 'up';
         e.preventDefault();
-    } else if (isKeyPressed(e, binds.down) && direction !== 'up') {
+    } else if (e.key === 'ArrowDown' && direction !== 'up') {
         nextDirection = 'down';
         e.preventDefault();
-    } else if (isKeyPressed(e, binds.left) && direction !== 'right') {
+    } else if (e.key === 'ArrowLeft' && direction !== 'right') {
         nextDirection = 'left';
         e.preventDefault();
-    } else if (isKeyPressed(e, binds.right) && direction !== 'left') {
+    } else if (e.key === 'ArrowRight' && direction !== 'left') {
         nextDirection = 'right';
         e.preventDefault();
-    } else if (isKeyPressed(e, binds.pause)) {
+    } else if (e.key === 'p' || e.key === 'P' || e.key === 'р' || e.key === 'Р') {
         paused = !paused;
         e.preventDefault();
     }
 });
 
-// Свайпы для телефона
 if (isMobile) {
     let touchStartX = 0, touchStartY = 0;
     canvas.addEventListener('touchstart', (e) => {
