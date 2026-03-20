@@ -16,7 +16,7 @@ let food = {};
 let direction = 'right';
 let nextDirection = 'right';
 let score = 0;
-let gameRunning = false;
+let gameRunning = true;  // ИСПРАВЛЕНО: сразу true
 let gameLoop = null;
 let paused = false;
 
@@ -28,9 +28,11 @@ function init() {
     score = 0;
     scoreElement.textContent = score;
     generateFood();
-    gameRunning = true;
+    gameRunning = true;  // ИСПРАВЛЕНО
     paused = false;
     gameOverElement.style.display = 'none';
+    // Убираем фокус с canvas чтобы стрелки работали
+    canvas.blur();
 }
 
 // Генерация еды
@@ -81,7 +83,7 @@ function update() {
     }
 }
 
-// Отрисовка
+// Отрисовка с ГЛАЗАМИ для змейки
 function draw() {
     if (!gameRunning) return;
     
@@ -103,9 +105,11 @@ function draw() {
         ctx.stroke();
     }
     
-    // Змейка
+    // Рисуем змейку
     snake.forEach((segment, index) => {
         const isHead = index === 0;
+        
+        // Тело змейки
         ctx.fillStyle = isHead ? '#7b4ae2' : '#9d7aef';
         ctx.shadowColor = isHead ? '#7b4ae2' : '#9d7aef';
         ctx.shadowBlur = 10;
@@ -119,6 +123,81 @@ function draw() {
             5
         );
         ctx.fill();
+        
+        // РИСУЕМ ГЛАЗА ТОЛЬКО ДЛЯ ГОЛОВЫ
+        if (isHead) {
+            ctx.fillStyle = 'white';
+            ctx.shadowBlur = 0;
+            
+            const eyeSize = cellSize / 6;
+            const eyeOffset = cellSize / 3;
+            
+            // В зависимости от направления рисуем глаза
+            if (direction === 'right') {
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + cellSize - eyeOffset + 2, segment.y * cellSize + eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + cellSize - eyeOffset + 2, segment.y * cellSize + cellSize - eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
+                ctx.fill();
+            } 
+            else if (direction === 'left') {
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + eyeOffset - 2, segment.y * cellSize + eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + eyeOffset - 2, segment.y * cellSize + cellSize - eyeOffset, eyeSize/1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            else if (direction === 'up') {
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + eyeOffset - 2, eyeSize/1.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset - 2, eyeSize/1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            else if (direction === 'down') {
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + cellSize - eyeOffset, eyeSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + eyeOffset, segment.y * cellSize + cellSize - eyeOffset + 2, eyeSize/1.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + cellSize - eyeOffset + 2, eyeSize/1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
     });
     
     // Еда
@@ -186,7 +265,7 @@ function restartGame() {
     gameLoop = requestAnimationFrame(gameTick);
 }
 
-// Закрыть игру
+// Закрыть игру - ОТПРАВЛЯЕТ СООБЩЕНИЕ РОДИТЕЛЮ
 function closeGame() {
     window.parent.postMessage('closeGame', '*');
 }
@@ -207,17 +286,18 @@ function gameTick(timestamp) {
     gameLoop = requestAnimationFrame(gameTick);
 }
 
-// УПРАВЛЕНИЕ
+// УПРАВЛЕНИЕ - ИСПРАВЛЕНО!
 document.addEventListener('keydown', (e) => {
-    // ESC всегда закрывает игру
+    // ESC ВСЕГДА ЗАКРЫВАЕТ ИГРУ
     if (e.key === 'Escape') {
+        e.preventDefault();
         closeGame();
         return;
     }
     
     if (!gameRunning) return;
     
-    // Проверяем бинды (функция isKeyPressed из bind.js)
+    // Проверяем бинды
     if (isKeyPressed(e, binds.up) && direction !== 'down') {
         nextDirection = 'up';
         e.preventDefault();
