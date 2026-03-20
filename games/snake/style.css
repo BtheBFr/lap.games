@@ -47,6 +47,7 @@ body {
     border: 2px solid #7b4ae2;
     text-align: center;
     color: white;
+    z-index: 10;
 }
 
 #gameOver h2 {
