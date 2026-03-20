@@ -1,5 +1,21 @@
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+// Конвертация русских букв в английские (маленькие и большие -> большие английские)
+function convertToEnglishKey(key) {
+    const ruToEn = {
+        'й': 'Q', 'ц': 'W', 'у': 'E', 'к': 'R', 'е': 'T', 'н': 'Y', 'г': 'U', 'ш': 'I', 'щ': 'O', 'з': 'P', 'х': '[', 'ъ': ']',
+        'ф': 'A', 'ы': 'S', 'в': 'D', 'а': 'F', 'п': 'G', 'р': 'H', 'о': 'J', 'л': 'K', 'д': 'L', 'ж': ';', 'э': "'",
+        'я': 'Z', 'ч': 'X', 'с': 'C', 'м': 'V', 'и': 'B', 'т': 'N', 'ь': 'B', 'б': ',', 'ю': '.',
+        'Й': 'Q', 'Ц': 'W', 'У': 'E', 'К': 'R', 'Е': 'T', 'Н': 'Y', 'Г': 'U', 'Ш': 'I', 'Щ': 'O', 'З': 'P', 'Х': '{', 'Ъ': '}',
+        'Ф': 'A', 'Ы': 'S', 'В': 'D', 'А': 'F', 'П': 'G', 'Р': 'H', 'О': 'J', 'Л': 'K', 'Д': 'L', 'Ж': ':', 'Э': '"',
+        'Я': 'Z', 'Ч': 'X', 'С': 'C', 'М': 'V', 'И': 'B', 'Т': 'N', 'Ь': 'B', 'Б': '<', 'Ю': '>'
+    };
+    
+    if (ruToEn[key]) return ruToEn[key];
+    if (key.length === 1) return key.toUpperCase();
+    return key;
+}
+
 class SettingsManager {
     constructor() {
         this.binds = this.loadBinds();
@@ -11,11 +27,11 @@ class SettingsManager {
         const binds = {};
         gamesDatabase.forEach(game => {
             binds[game.id] = {
-                'up': 'ArrowUp',
-                'down': 'ArrowDown',
-                'left': 'ArrowLeft',
-                'right': 'ArrowRight',
-                'pause': 'KeyP'
+                'up': 'ARROWUP',
+                'down': 'ARROWDOWN',
+                'left': 'ARROWLEFT',
+                'right': 'ARROWRIGHT',
+                'pause': 'P'
             };
         });
         return binds;
@@ -31,23 +47,29 @@ class SettingsManager {
     
     updateBind(gameId, action, key) {
         if (!this.binds[gameId]) this.binds[gameId] = {};
-        this.binds[gameId][action] = key;
+        const converted = convertToEnglishKey(key);
+        this.binds[gameId][action] = converted;
         this.saveBinds();
     }
     
     resetGameBinds(gameId) {
         this.binds[gameId] = {
-            'up': 'ArrowUp',
-            'down': 'ArrowDown',
-            'left': 'ArrowLeft',
-            'right': 'ArrowRight',
-            'pause': 'KeyP'
+            'up': 'ARROWUP',
+            'down': 'ARROWDOWN',
+            'left': 'ARROWLEFT',
+            'right': 'ARROWRIGHT',
+            'pause': 'P'
         };
         this.saveBinds();
     }
     
     getReadableKey(key) {
-        const names = { 'ArrowUp': '↑', 'ArrowDown': '↓', 'ArrowLeft': '←', 'ArrowRight': '→', 'KeyP': 'P' };
+        const names = {
+            'ARROWUP': '↑',
+            'ARROWDOWN': '↓',
+            'ARROWLEFT': '←',
+            'ARROWRIGHT': '→'
+        };
         return names[key] || key;
     }
 }
@@ -68,12 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     document.getElementById('closeGameBtn').addEventListener('click', closeGame);
-    
-    document.body.addEventListener('touchmove', (e) => {
-        if (document.getElementById('gameContainer').classList.contains('active')) {
-            e.preventDefault();
-        }
-    }, { passive: false });
 });
 
 function closeGame() {
@@ -231,8 +247,9 @@ function showBindModal(game) {
             const newKey = await waitForKeyPress();
             keySpan.classList.remove('recording');
             if (newKey && newKey !== 'Escape') {
-                keySpan.textContent = settingsManager.getReadableKey(newKey);
-                settingsManager.updateBind(game.id, action, newKey);
+                const converted = convertToEnglishKey(newKey);
+                keySpan.textContent = settingsManager.getReadableKey(converted);
+                settingsManager.updateBind(game.id, action, converted);
             } else {
                 keySpan.textContent = settingsManager.getReadableKey(key);
             }
@@ -259,11 +276,11 @@ function waitForKeyPress() {
                 resolve(null);
             } else {
                 let key = e.key;
-                if (key === ' ') key = 'Space';
-                if (key === 'ArrowUp') key = 'ArrowUp';
-                if (key === 'ArrowDown') key = 'ArrowDown';
-                if (key === 'ArrowLeft') key = 'ArrowLeft';
-                if (key === 'ArrowRight') key = 'ArrowRight';
+                if (key === ' ') key = 'SPACE';
+                if (key === 'ArrowUp') key = 'ARROWUP';
+                if (key === 'ArrowDown') key = 'ARROWDOWN';
+                if (key === 'ArrowLeft') key = 'ARROWLEFT';
+                if (key === 'ArrowRight') key = 'ARROWRIGHT';
                 resolve(key);
             }
         };
