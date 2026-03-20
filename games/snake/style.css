@@ -11,6 +11,7 @@ body {
     align-items: center;
     min-height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    touch-action: none;
 }
 
 #gameCanvas {
@@ -18,6 +19,7 @@ body {
     border-radius: 20px;
     background: #14181c;
     box-shadow: 0 0 30px rgba(123, 74, 226, 0.2);
+    touch-action: none;
 }
 
 .game-ui {
@@ -91,4 +93,18 @@ body {
 .btn-secondary:hover {
     border-color: #7b4ae2;
     color: white;
+}
+
+@media (max-width: 768px) {
+    #gameCanvas {
+        width: 95vw;
+        height: 95vw;
+        max-width: 400px;
+        max-height: 400px;
+    }
+    
+    .score {
+        font-size: 1rem;
+        padding: 6px 12px;
+    }
 }
