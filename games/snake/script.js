@@ -4,13 +4,14 @@ const scoreElement = document.getElementById('score');
 const gameOverElement = document.getElementById('gameOver');
 const finalScoreElement = document.getElementById('finalScore');
 
+// Размеры - фиксированные
 canvas.width = 400;
 canvas.height = 400;
 const gridSize = 20;
 const cellSize = canvas.width / gridSize;
 
-let snake = [{x: 10, y: 10}];
-let food = {};
+let snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+let food = {x: 15, y: 10};
 let direction = 'right';
 let nextDirection = 'right';
 let score = 0;
@@ -21,7 +22,7 @@ let paused = false;
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 function init() {
-    snake = [{x: 10, y: 10}];
+    snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
     direction = 'right';
     nextDirection = 'right';
     score = 0;
@@ -33,12 +34,14 @@ function init() {
 }
 
 function generateFood() {
+    let newFood;
     do {
-        food = {
+        newFood = {
             x: Math.floor(Math.random() * gridSize),
             y: Math.floor(Math.random() * gridSize)
         };
-    } while (snake.some(segment => segment.x === food.x && segment.y === food.y));
+    } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+    food = newFood;
 }
 
 function update() {
@@ -54,11 +57,13 @@ function update() {
         case 'down': head.y++; break;
     }
     
+    // Проверка стен
     if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
         gameOver();
         return;
     }
     
+    // Проверка себя
     if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
         gameOver();
         return;
@@ -78,9 +83,11 @@ function update() {
 function draw() {
     if (!gameRunning) return;
     
+    // Очистка
     ctx.fillStyle = '#14181c';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
+    // Сетка
     ctx.strokeStyle = '#2a323c';
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= gridSize; i++) {
@@ -94,6 +101,7 @@ function draw() {
         ctx.stroke();
     }
     
+    // Змейка
     snake.forEach((segment, index) => {
         const isHead = index === 0;
         ctx.fillStyle = isHead ? '#7b4ae2' : '#9d7aef';
@@ -101,9 +109,16 @@ function draw() {
         ctx.shadowBlur = 10;
         
         ctx.beginPath();
-        ctx.roundRect(segment.x * cellSize + 2, segment.y * cellSize + 2, cellSize - 4, cellSize - 4, 5);
+        ctx.roundRect(
+            segment.x * cellSize + 2,
+            segment.y * cellSize + 2,
+            cellSize - 4,
+            cellSize - 4,
+            5
+        );
         ctx.fill();
         
+        // Глаза для головы
         if (isHead) {
             ctx.fillStyle = 'white';
             ctx.shadowBlur = 0;
@@ -170,13 +185,21 @@ function draw() {
         }
     });
     
+    // Еда
     ctx.shadowColor = '#ff4d4d';
     ctx.shadowBlur = 15;
     ctx.fillStyle = '#ff4d4d';
     ctx.beginPath();
-    ctx.arc(food.x * cellSize + cellSize / 2, food.y * cellSize + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
+    ctx.arc(
+        food.x * cellSize + cellSize / 2,
+        food.y * cellSize + cellSize / 2,
+        cellSize / 3,
+        0,
+        Math.PI * 2
+    );
     ctx.fill();
     
+    // Пауза
     if (paused) {
         ctx.shadowBlur = 0;
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -241,6 +264,7 @@ function gameTick(timestamp) {
     gameLoop = requestAnimationFrame(gameTick);
 }
 
+// Управление
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         e.preventDefault();
@@ -267,6 +291,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Свайпы для телефона
 if (isMobile) {
     let touchStartX = 0, touchStartY = 0;
     canvas.addEventListener('touchstart', (e) => {
