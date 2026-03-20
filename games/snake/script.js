@@ -269,7 +269,7 @@ function gameTick(timestamp) {
     gameLoop = requestAnimationFrame(gameTick);
 }
 
-// УПРАВЛЕНИЕ - СТРЕЛОЧКИ И ПАУЗА РАБОТАЮТ!
+// УПРАВЛЕНИЕ - ИСПРАВЛЕНО
 document.addEventListener('keydown', (e) => {
     // ESC закрывает игру
     if (e.key === 'Escape') {
@@ -281,21 +281,21 @@ document.addEventListener('keydown', (e) => {
     if (!gameRunning) return;
     
     // Стрелочки
-    if (isKeyPressed(e, binds.up) && direction !== 'down') {
+    if (e.key === 'ArrowUp' && direction !== 'down') {
         nextDirection = 'up';
         e.preventDefault();
-    } else if (isKeyPressed(e, binds.down) && direction !== 'up') {
+    } else if (e.key === 'ArrowDown' && direction !== 'up') {
         nextDirection = 'down';
         e.preventDefault();
-    } else if (isKeyPressed(e, binds.left) && direction !== 'right') {
+    } else if (e.key === 'ArrowLeft' && direction !== 'right') {
         nextDirection = 'left';
         e.preventDefault();
-    } else if (isKeyPressed(e, binds.right) && direction !== 'left') {
+    } else if (e.key === 'ArrowRight' && direction !== 'left') {
         nextDirection = 'right';
         e.preventDefault();
     } 
-    // ПАУЗА НА P
-    else if (isKeyPressed(e, binds.pause)) {
+    // Пауза на P
+    else if (e.key === 'p' || e.key === 'P' || e.key === 'р' || e.key === 'Р') {
         paused = !paused;
         e.preventDefault();
     }
