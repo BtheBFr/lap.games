@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
     <div class="game-ui">
         <div class="score">Счет: <span id="score">0</span></div>
         <div class="game-over" id="gameOver">
             <h2>Игра окончена!</h2>
             <p>Счет: <span id="finalScore">0</span></p>
-            <button class="btn-primary" onclick="restartGame()">Играть снова</button>
+            <button onclick="restartGame()">Играть снова</button>
             <button class="btn-secondary" onclick="closeGame()">Выход</button>
         </div>
     </div>
