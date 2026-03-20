@@ -16,7 +16,7 @@ let food = {};
 let direction = 'right';
 let nextDirection = 'right';
 let score = 0;
-let gameRunning = true;  // ИСПРАВЛЕНО: сразу true
+let gameRunning = true;
 let gameLoop = null;
 let paused = false;
 
@@ -28,11 +28,9 @@ function init() {
     score = 0;
     scoreElement.textContent = score;
     generateFood();
-    gameRunning = true;  // ИСПРАВЛЕНО
+    gameRunning = true;
     paused = false;
     gameOverElement.style.display = 'none';
-    // Убираем фокус с canvas чтобы стрелки работали
-    canvas.blur();
 }
 
 // Генерация еды
@@ -59,13 +57,11 @@ function update() {
         case 'down': head.y++; break;
     }
     
-    // Проверка стен
     if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
         gameOver();
         return;
     }
     
-    // Проверка себя
     if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
         gameOver();
         return;
@@ -73,7 +69,6 @@ function update() {
     
     snake.unshift(head);
     
-    // Еда
     if (head.x === food.x && head.y === food.y) {
         score += 10;
         scoreElement.textContent = score;
@@ -83,14 +78,13 @@ function update() {
     }
 }
 
-// Отрисовка с ГЛАЗАМИ для змейки
+// Отрисовка
 function draw() {
     if (!gameRunning) return;
     
     ctx.fillStyle = '#14181c';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Сетка
     ctx.strokeStyle = '#2a323c';
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= gridSize; i++) {
@@ -105,11 +99,9 @@ function draw() {
         ctx.stroke();
     }
     
-    // Рисуем змейку
     snake.forEach((segment, index) => {
         const isHead = index === 0;
         
-        // Тело змейки
         ctx.fillStyle = isHead ? '#7b4ae2' : '#9d7aef';
         ctx.shadowColor = isHead ? '#7b4ae2' : '#9d7aef';
         ctx.shadowBlur = 10;
@@ -124,7 +116,6 @@ function draw() {
         );
         ctx.fill();
         
-        // РИСУЕМ ГЛАЗА ТОЛЬКО ДЛЯ ГОЛОВЫ
         if (isHead) {
             ctx.fillStyle = 'white';
             ctx.shadowBlur = 0;
@@ -132,7 +123,6 @@ function draw() {
             const eyeSize = cellSize / 6;
             const eyeOffset = cellSize / 3;
             
-            // В зависимости от направления рисуем глаза
             if (direction === 'right') {
                 ctx.beginPath();
                 ctx.arc(segment.x * cellSize + cellSize - eyeOffset, segment.y * cellSize + eyeOffset, eyeSize, 0, Math.PI * 2);
@@ -200,7 +190,6 @@ function draw() {
         }
     });
     
-    // Еда
     ctx.shadowColor = '#ff4d4d';
     ctx.shadowBlur = 15;
     ctx.fillStyle = '#ff4d4d';
@@ -214,7 +203,6 @@ function draw() {
     );
     ctx.fill();
     
-    // Пауза
     if (paused) {
         ctx.shadowBlur = 0;
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -228,7 +216,6 @@ function draw() {
     ctx.shadowBlur = 0;
 }
 
-// Скругленные прямоугольники
 CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     if (w < 2 * r) r = w / 2;
     if (h < 2 * r) r = h / 2;
@@ -245,7 +232,6 @@ CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     return this;
 };
 
-// Game Over
 function gameOver() {
     gameRunning = false;
     if (gameLoop) {
@@ -256,7 +242,6 @@ function gameOver() {
     gameOverElement.style.display = 'block';
 }
 
-// Рестарт
 function restartGame() {
     if (gameLoop) {
         cancelAnimationFrame(gameLoop);
@@ -265,12 +250,10 @@ function restartGame() {
     gameLoop = requestAnimationFrame(gameTick);
 }
 
-// Закрыть игру - ОТПРАВЛЯЕТ СООБЩЕНИЕ РОДИТЕЛЮ
 function closeGame() {
     window.parent.postMessage('closeGame', '*');
 }
 
-// Игровой цикл
 let lastUpdate = 0;
 const UPDATE_INTERVAL = 150;
 
@@ -286,9 +269,9 @@ function gameTick(timestamp) {
     gameLoop = requestAnimationFrame(gameTick);
 }
 
-// УПРАВЛЕНИЕ - ИСПРАВЛЕНО!
+// УПРАВЛЕНИЕ - СТРЕЛОЧКИ И ПАУЗА РАБОТАЮТ!
 document.addEventListener('keydown', (e) => {
-    // ESC ВСЕГДА ЗАКРЫВАЕТ ИГРУ
+    // ESC закрывает игру
     if (e.key === 'Escape') {
         e.preventDefault();
         closeGame();
@@ -297,7 +280,7 @@ document.addEventListener('keydown', (e) => {
     
     if (!gameRunning) return;
     
-    // Проверяем бинды
+    // Стрелочки
     if (isKeyPressed(e, binds.up) && direction !== 'down') {
         nextDirection = 'up';
         e.preventDefault();
@@ -310,19 +293,19 @@ document.addEventListener('keydown', (e) => {
     } else if (isKeyPressed(e, binds.right) && direction !== 'left') {
         nextDirection = 'right';
         e.preventDefault();
-    } else if (isKeyPressed(e, binds.pause)) {
+    } 
+    // ПАУЗА НА P
+    else if (isKeyPressed(e, binds.pause)) {
         paused = !paused;
         e.preventDefault();
     }
 });
 
-// Слушаем сообщения от родителя
 window.addEventListener('message', (e) => {
     if (e.data === 'closeGame') {
         closeGame();
     }
 });
 
-// Запуск
 init();
 gameLoop = requestAnimationFrame(gameTick);
